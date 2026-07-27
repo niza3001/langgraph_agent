@@ -5,10 +5,12 @@ description = "Minimal LangGraph chat agent with tool calling"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "ddgs>=9.14.4",
     "langchain-core>=1.5.1",
     "langchain-openai>=1.4.1",
     "langgraph>=1.2.9",
     "python-dotenv>=1.2.2",
+    "rich>=15.0.0",
 ]
 
 [project.scripts]

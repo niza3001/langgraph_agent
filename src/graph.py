@@ -21,10 +21,23 @@ from src.state import AgentState
 from src.tools import TOOLS
 
 SYSTEM_PROMPT = (
-    "You are a helpful assistant. Use tools when they help you answer accurately."
+    "You are a helpful assistant with access to tools. Rules:\n"
+    "1. ALWAYS call get_current_time before answering any question about the "
+    "date, the day, or a relative period like 'this week', 'today', or "
+    "'the coming week'. Never state the date from memory.\n"
+    "2. ALWAYS call web_search for events, news, prices, or any fact that may "
+    "have changed recently. Never invent event listings, dates, or URLs — if "
+    "you did not get it from web_search, do not report it.\n"
+    "3. Use calculator for arithmetic instead of computing in your head.\n"
+    "After using a tool, base your answer only on the tool's output."
 )
 
-# Default OpenRouter free-model router. Override with OPENROUTER_MODEL.
+# The openrouter/free router always resolves to a currently-available free
+# model AND filters for tool calling when tools are bound. Individual :free
+# slugs rotate constantly (a pinned one can start returning 404 "paid now"),
+# so the router is the resilient default. The hardened SYSTEM_PROMPT above
+# forces tool use, mitigating weaker models the router may pick.
+# Override with OPENROUTER_MODEL to pin a specific free slug.
 DEFAULT_MODEL = "openrouter/free"
 
 

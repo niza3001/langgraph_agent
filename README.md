@@ -43,6 +43,7 @@ Type `bye` or `goodbye` to quit and save the conversation to
 | `src/state.py` | Graph state (message history) |
 | `src/tools.py` | Tools available to the agent |
 | `src/graph.py` | Graph nodes, edges, and compile |
+| `src/formatting.py` | Terminal colors and CLI output |
 | `main.py` | CLI chat loop |
 
 ## Adding a tool
@@ -50,3 +51,5 @@ Type `bye` or `goodbye` to quit and save the conversation to
 Define a function, decorate it with `@tool` from `langchain_core.tools`,
 and add it to `TOOLS` in `src/tools.py`. The docstring is what the model
 uses to decide when to call the tool.
+
+Built-in tools: `get_current_time`, `calculator`, `web_search` (DuckDuckGo via `ddgs`, no API key).

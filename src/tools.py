@@ -50,4 +50,31 @@ def calculator(expression: str) -> str:
         return f"Error evaluating '{expression}': {exc}"
 
 
-TOOLS = [get_current_time, calculator]
+@tool
+def web_search(query: str, max_results: int = 5) -> str:
+    """Search the web for current information about a topic.
+
+    Use this for news, facts you are unsure about, or anything that may
+    have changed recently. Returns titles, URLs, and short snippets.
+    """
+    from ddgs import DDGS
+
+    limit = max(1, min(max_results, 10))
+    try:
+        results = DDGS().text(query, max_results=limit)
+    except Exception as exc:
+        return f"Error searching for '{query}': {exc}"
+
+    if not results:
+        return f"No results found for '{query}'."
+
+    lines = []
+    for i, item in enumerate(results, start=1):
+        title = item.get("title") or "(no title)"
+        href = item.get("href") or item.get("link") or ""
+        body = item.get("body") or item.get("snippet") or ""
+        lines.append(f"{i}. {title}\n   {href}\n   {body}")
+    return "\n\n".join(lines)
+
+
+TOOLS = [get_current_time, calculator, web_search]
