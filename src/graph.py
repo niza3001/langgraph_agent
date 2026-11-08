@@ -10,6 +10,7 @@ After tools execute, control returns to ``agent`` so the model can use
 the results.
 """
 
+from langchain_core.runnables import Runnable
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
@@ -28,9 +29,9 @@ from src.state import AgentState
 from src.tools import TOOLS
 
 
-def build_graph():
-    """Compile and return the chat agent graph."""
-    llm = ChatOpenAI(
+def _default_llm() -> Runnable:
+    """Build the OpenRouter chat model with ``TOOLS`` bound."""
+    return ChatOpenAI(
         model=get_model(),
         api_key=get_openrouter_api_key(),
         base_url=OPENROUTER_BASE_URL,
@@ -40,6 +41,18 @@ def build_graph():
             "X-Title": OPENROUTER_APP_TITLE,
         },
     ).bind_tools(TOOLS)
+
+
+def build_graph(llm: Runnable | None = None):
+    """Compile and return the chat agent graph.
+
+    Args:
+        llm: A runnable that takes a message list and returns an
+            ``AIMessage``, already bound to ``TOOLS``. Defaults to the
+            OpenRouter model; tests pass a fake to avoid network calls.
+    """
+    if llm is None:
+        llm = _default_llm()
 
     def agent_node(state: AgentState) -> dict:
         """Invoke the LLM and append its reply to ``messages``."""

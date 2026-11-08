@@ -36,6 +36,23 @@ uv run langgraph-agent
 Type `bye` or `goodbye` to quit and save the conversation to
 `logs/session-*.txt`. `exit` and `quit` also work.
 
+## Test
+
+```bash
+uv run pytest
+```
+
+Tests use a scripted fake LLM and a patched search client, so they make
+no network calls and need no API key. `build_graph(llm=...)` accepts any
+runnable for this purpose.
+
+To print the graph topology (uses the `grandalf` dev dependency):
+
+```bash
+uv run python -c "from dotenv import load_dotenv; load_dotenv(); \
+from src.graph import build_graph; print(build_graph().get_graph().draw_ascii())"
+```
+
 ## Project layout
 
 | Path | Role |
