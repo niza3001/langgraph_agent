@@ -40,8 +40,10 @@ Type `bye` or `goodbye` to quit and save the conversation to
 
 | Path | Role |
 |------|------|
+| `src/config.py` | Model defaults and CLI settings |
 | `src/state.py` | Graph state (message history) |
 | `src/tools.py` | Tools available to the agent |
+| `src/prompts/` | System and other prompt templates |
 | `src/graph.py` | Graph nodes, edges, and compile |
 | `src/formatting.py` | Terminal colors and CLI output |
 | `main.py` | CLI chat loop |

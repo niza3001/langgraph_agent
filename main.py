@@ -1,6 +1,5 @@
 """CLI entry point for the LangGraph chat agent."""
 
-import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -8,6 +7,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from src.config import (  # noqa: E402
+    DEFAULT_THREAD_ID,
+    LOG_DIR,
+    QUIT_WORDS,
+    debug_tools_enabled,
+)
 from src.formatting import (  # noqa: E402
     ask_user,
     print_agent_reply,
@@ -19,12 +24,6 @@ from src.formatting import (  # noqa: E402
     thinking,
 )
 from src.graph import build_graph  # noqa: E402
-
-QUIT_WORDS = {"exit", "quit", "bye", "goodbye"}
-LOG_DIR = Path("logs")
-
-# Set DEBUG_TOOLS=0 in the environment to silence tool-call tracing.
-DEBUG_TOOLS = os.getenv("DEBUG_TOOLS", "1") != "0"
 
 
 def _message_text(content) -> str:
@@ -90,8 +89,9 @@ def save_log(transcript: list[tuple[str, str]]) -> Path:
 def main() -> None:
     """Run an interactive chat loop until the user quits."""
     app = build_graph()
-    config = {"configurable": {"thread_id": "cli-session"}}
+    config = {"configurable": {"thread_id": DEFAULT_THREAD_ID}}
     transcript: list[tuple[str, str]] = []
+    show_tools = debug_tools_enabled()
 
     print_banner()
 
@@ -110,14 +110,20 @@ def main() -> None:
                     config,
                     stream_mode="updates",
                 ):
-                    if DEBUG_TOOLS:
+                    if show_tools:
                         _trace_tools(chunk)
                     for node_update in chunk.values():
-                        msgs = node_update.get("messages") if isinstance(node_update, dict) else None
+                        msgs = (
+                            node_update.get("messages")
+                            if isinstance(node_update, dict)
+                            else None
+                        )
                         if msgs:
                             final_message = msgs[-1]
-            reply = _reply_text(final_message) if final_message is not None else (
-                "[no output — graph produced no messages]"
+            reply = (
+                _reply_text(final_message)
+                if final_message is not None
+                else "[no output — graph produced no messages]"
             )
         except Exception as exc:
             print_error(exc)
